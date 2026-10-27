@@ -22,4 +22,5 @@ Start, CRISIS и Treasure пока без правил.
 flutter test
 flutter run -d chrome
 flutter build web --wasm --no-web-resources-cdn
+node tool/serve.mjs   # http://localhost:8790
 ```
