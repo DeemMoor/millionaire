@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Generates the board emblems into assets/emblems/*.svg.
 
-Original artwork in one flat, outlined style; real brand logos are not used.
+Flat, outlined style. Brand marks are loose look-alikes of the logos from the
+2001 original: a private nostalgia build, not for public distribution.
 Usage: python3 tool/emblems.py
 """
 from pathlib import Path
@@ -277,6 +278,116 @@ E['pot'] = svg(
     f'<path d="M22 10 L42 10 L38 17 L26 17 Z" fill="#8D6E63" {S}/>'
     '<path d="M24 17 C28 19 36 19 40 17" stroke="#FFC107" stroke-width="3"/>'
     '<text x="32" y="50" font-family="sans-serif" font-size="22" font-weight="bold" fill="#FFEB3B" text-anchor="middle" stroke="#5D4037" stroke-width="1">$</text>')
+
+
+# --- 2001-style brand marks (override the generic emblems above) ----------
+import math
+
+
+def ring(r, color, width=4, cx=32, cy=32):
+    return f'<circle cx="{cx}" cy="{cy}" r="{r}" fill="none" stroke="{color}" stroke-width="{width}"/>'
+
+
+def star_arm(angle, r=21, w=4.5):
+    a = math.radians(angle)
+    tip = (32 + r * math.cos(a), 32 + r * math.sin(a))
+    l = (32 + w * math.cos(a - 2.1), 32 + w * math.sin(a - 2.1))
+    rr = (32 + w * math.cos(a + 2.1), 32 + w * math.sin(a + 2.1))
+    return f'M32 32 L{l[0]:.1f} {l[1]:.1f} L{tip[0]:.1f} {tip[1]:.1f} L{rr[0]:.1f} {rr[1]:.1f} Z'
+
+
+E['puma'] = svg(
+    '<path d="M61 16 C60 13 57 11 54 11 L52 6 L49.5 10.5 '
+    'C44 12 38 16 31 20 C24 24 17 27 12 29 '
+    'C8 28 5.5 24 5 18 C4.6 15.5 1.8 16 2.2 19.5 C3 26 6 30.5 10 32.5 '
+    'C7 35.5 4 39 1 42 L2.5 45.5 C7 43 11 40 15.5 37.5 '
+    'C21 38.5 27 36.5 33 33.5 C39 31 44 30 49 29.5 L61 29 L61.5 25 '
+    'C57 25 53 24 50 23 C53 20.5 57 19.5 60.5 18.5 Z" fill="#212121"/>'
+    '<circle cx="56" cy="14" r="1" fill="#fff"/>')
+E['montana'] = svg(
+    ''.join(f'<rect x="{x}" y="23" width="17" height="17" fill="{c}" {S}/>'
+            for x, c in ((4, '#E53935'), (23.5, '#43A047'), (43, '#1E88E5'))))
+E['adidas'] = svg(
+    '<g transform="translate(0 8)"><g fill="#1565C0">'
+    '<ellipse cx="32" cy="22" rx="8" ry="16"/>'
+    '<ellipse cx="32" cy="22" rx="8" ry="16" transform="rotate(-58 32 38)"/>'
+    '<ellipse cx="32" cy="22" rx="8" ry="16" transform="rotate(58 32 38)"/></g>'
+    '<path d="M4 29 L60 29 M4 34.5 L60 34.5" stroke="#fff" stroke-width="2.6"/>'
+    '<rect x="4" y="38" width="56" height="6" fill="#fff"/></g>')
+
+E['suzuki'] = svg(
+    '<g transform="translate(0 4)"><path d="M50 9 L24 9 L12 21 L34 33 L28 39 L12 39 L12 47 L38 47 L52 33 L30 21 L34 17 L50 17 Z" fill="#D32F2F" stroke="#7f0000" stroke-width="1.5" stroke-linejoin="round"/></g>')
+_fork = ('<path d="M32 30 L32 9 M27 9 L27 16 Q27 21 32 21 Q37 21 37 16 L37 9" '
+         'fill="none" stroke="#4527A0" stroke-width="3.2" stroke-linecap="round"/>')
+E['yamaha'] = svg(
+    ring(25, '#4527A0', 3.5)
+    + ''.join(f'<g transform="rotate({a} 32 32)">{_fork}</g>' for a in (0, 120, 240))
+    + '<circle cx="32" cy="32" r="4" fill="#4527A0"/>')
+E['honda'] = svg(
+    '<g transform="translate(0 6)"><path d="M6 44 C14 24 32 12 59 13 C48 17 40 22 35 28 C42 25 50 25 56 26 '
+    'C46 29 39 33 35 38 C40 36 46 36 50 37 C40 41 26 46 6 44 Z" fill="#E53935" stroke="#7f0000" stroke-width="1.5" stroke-linejoin="round"/>'
+    '<path d="M14 40 C22 30 32 23 44 19" stroke="#fff" stroke-width="1.5" fill="none" opacity=".7"/></g>')
+E['kawasaki'] = svg(
+    '<rect x="6" y="6" width="52" height="52" rx="12" fill="#2E7D32" stroke="#1B5E20" stroke-width="2"/>'
+    '<path d="M17 13 h9 v15 l13 -15 h11 l-15 17 l16 21 h-11 l-11 -15 l-3 3 v12 h-9 Z" fill="#fff"/>')
+
+E['audi'] = svg(''.join(ring(9, '#9E9E9E', 3.6, cx, 32) for cx in (14, 26, 38, 50)))
+E['bmw'] = svg(
+    '<circle cx="32" cy="32" r="29" fill="#212121"/>'
+    '<circle cx="32" cy="32" r="18" fill="#fff"/>'
+    '<path d="M32 32 L32 14 A18 18 0 0 1 50 32 Z M32 32 L32 50 A18 18 0 0 1 14 32 Z" fill="#1E88E5"/>'
+    + ring(18, '#BDBDBD', 1.5)
+    + '<text x="32" y="11.5" font-family="PTSans" font-weight="bold" font-size="7.5" fill="#fff" text-anchor="middle">B M W</text>')
+E['mercedes'] = svg(
+    ring(26, '#78909C', 3.5)
+    + f'<path d="{star_arm(-90)} {star_arm(30)} {star_arm(150)}" fill="#607D8B" stroke="#37474F" stroke-width="1"/>')
+E['opel'] = svg(
+    '<circle cx="32" cy="32" r="22" fill="#FFEB3B"/>' + ring(22, '#424242', 4)
+    + '<path d="M3 31 L35 31 L29 25.5 L61 33 L29 33 L35 38.5 Z" fill="#424242" stroke="#424242" stroke-width="1.5" stroke-linejoin="round"/>')
+E['volkswagen'] = svg(
+    '<circle cx="32" cy="32" r="28" fill="#1565C0"/>' + ring(24, '#fff', 3)
+    + '<path d="M21 14 L32 34 L43 14 M13 24 L23 49 L32 35 L41 49 L51 24" fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round"/>')
+E['nissan'] = svg(
+    ring(24, '#90A4AE', 4.5)
+    + '<rect x="3" y="24" width="58" height="16" fill="#1565C0" stroke="#0D47A1" stroke-width="1.5"/>'
+    '<text x="12" y="36.5" font-family="PTSans" font-weight="bold" font-size="11.5" fill="#fff">NISSAN</text>')
+E['toyota'] = svg(
+    '<ellipse cx="32" cy="34" rx="28" ry="19" fill="none" stroke="#E53935" stroke-width="4"/>'
+    '<ellipse cx="32" cy="34" rx="8.5" ry="19" fill="none" stroke="#E53935" stroke-width="4"/>'
+    '<ellipse cx="32" cy="25" rx="17" ry="8.5" fill="none" stroke="#E53935" stroke-width="4"/>')
+
+E['philips'] = svg(
+    '<path d="M10 6 L54 6 L54 34 C54 48 44 56 32 60 C20 56 10 48 10 34 Z" fill="#1565C0" stroke="#0D47A1" stroke-width="2"/>'
+    '<path d="M14 30 Q20 24 26 30 T38 30 T50 30 M14 38 Q20 32 26 38 T38 38 T50 38 M14 46 Q20 40 26 46 T38 46" fill="none" stroke="#fff" stroke-width="2.5"/>'
+    + ''.join(f'<path d="M{x} {y - 4} L{x + 1} {y - 1} L{x + 4} {y} L{x + 1} {y + 1} L{x} {y + 4} L{x - 1} {y + 1} L{x - 4} {y} L{x - 1} {y - 1} Z" fill="#fff"/>'
+              for x, y in ((20, 15), (44, 15), (30, 52), (40, 49))))
+
+E['pepsi'] = svg(
+    '<circle cx="32" cy="32" r="26" fill="#1565C0"/>'
+    '<path d="M6 32 A26 26 0 0 1 58 32 C46 24 34 34 22 28 C16 25 10 27 6 32 Z" fill="#E53935"/>'
+    '<path d="M6 32 C10 27 16 25 22 28 C34 34 46 24 58 32 C58 33.5 57.8 35 57.6 36.4 C46 30 34 40 22 34 C15 31 9.5 33 6.4 36.5 C6.1 35 6 33.5 6 32 Z" fill="#fff"/>'
+    + ring(26, '#0D47A1', 2))
+E['fanta'] = svg(
+    '<path d="M32 16 C30 8 22 5 16 8 C20 14 26 16 32 16 Z" fill="#43A047" stroke="#1B5E20" stroke-width="1.5"/>'
+    '<path d="M32 16 C35 9 43 7 48 11 C43 16 37 17 32 16 Z" fill="#66BB6A" stroke="#1B5E20" stroke-width="1.5"/>'
+    '<circle cx="32" cy="38" r="21" fill="#FF9800" stroke="#E65100" stroke-width="2"/>'
+    '<ellipse cx="25" cy="31" rx="6" ry="4" fill="#fff" opacity=".35" transform="rotate(-30 25 31)"/>'
+    '<text x="32" y="44" font-family="RussoOne" font-size="13" fill="#1565C0" text-anchor="middle" stroke="#fff" stroke-width=".6">Fanta</text>')
+E['7up'] = svg(
+    '<rect x="6" y="6" width="52" height="52" rx="8" fill="#2E7D32" stroke="#1B5E20" stroke-width="2"/>'
+    '<text x="25" y="45" font-family="RussoOne" font-size="36" fill="#fff" text-anchor="middle">7</text>'
+    '<text x="45" y="30" font-family="RussoOne" font-size="12" fill="#fff" text-anchor="middle">UP</text>'
+    '<circle cx="45" cy="42" r="7" fill="#E53935" stroke="#fff" stroke-width="1.5"/>')
+
+E['donald'] = svg(
+    '<path d="M14 26 C14 14 22 8 32 8 C42 8 50 14 50 26 C50 40 42 50 32 50 C22 50 14 40 14 26 Z" fill="#fff" stroke="#263238" stroke-width="2.5"/>'
+    '<path d="M18 16 C22 6 42 6 46 16 L50 18 L14 18 Z" fill="#1E88E5" stroke="#263238" stroke-width="2.5" stroke-linejoin="round"/>'
+    '<path d="M36 6 C40 2 44 4 42 8" fill="#1E88E5" stroke="#263238" stroke-width="2"/>'
+    '<ellipse cx="26" cy="27" rx="3.5" ry="5" fill="#fff" stroke="#263238" stroke-width="1.5"/><circle cx="27" cy="28" r="1.8" fill="#263238"/>'
+    '<ellipse cx="38" cy="27" rx="3.5" ry="5" fill="#fff" stroke="#263238" stroke-width="1.5"/><circle cx="37" cy="28" r="1.8" fill="#263238"/>'
+    '<path d="M20 38 C26 32 38 32 44 38 C46 42 40 46 32 46 C24 46 18 42 20 38 Z" fill="#FFA000" stroke="#263238" stroke-width="2" stroke-linejoin="round"/>'
+    '<path d="M22 40 C28 42 36 42 42 40" stroke="#263238" stroke-width="1.5" fill="none"/>'
+    '<path d="M24 50 L32 58 L40 50" fill="#E53935" stroke="#263238" stroke-width="2" stroke-linejoin="round"/>')
 
 
 def main():
