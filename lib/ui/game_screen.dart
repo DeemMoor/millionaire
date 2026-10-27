@@ -18,6 +18,9 @@ class GameScreen extends StatefulWidget {
 class _GameScreenState extends State<GameScreen> {
   late final Game _game = Game(names: widget.names);
 
+  @visibleForTesting
+  Game get game => _game;
+
   @override
   void dispose() {
     _game.dispose();
@@ -47,8 +50,8 @@ class _GameScreenState extends State<GameScreen> {
                   child: FittedBox(
                     child: BoardView(
                       game: _game,
-                      left: SingleChildScrollView(child: players),
-                      right: SingleChildScrollView(child: controls),
+                      left: _ShrinkToFit(child: players),
+                      right: _ShrinkToFit(child: controls),
                     ),
                   ),
                 );
@@ -67,6 +70,25 @@ class _GameScreenState extends State<GameScreen> {
             },
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Scales the child down when it is taller than the space given, instead of
+/// letting it spill over the board.
+class _ShrinkToFit extends StatelessWidget {
+  const _ShrinkToFit({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) => FittedBox(
+        fit: BoxFit.scaleDown,
+        alignment: Alignment.topCenter,
+        child: SizedBox(width: constraints.maxWidth, child: child),
       ),
     );
   }

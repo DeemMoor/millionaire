@@ -127,20 +127,26 @@ class _PlayerCard extends StatelessWidget {
               runSpacing: 4,
               children: [
                 for (final firm in firms)
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: firm.color,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Text(
-                      firm.name,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: firm.color.computeLuminance() > 0.45
-                            ? Colors.black87
-                            : Colors.white,
+                  Tooltip(
+                    message: '${firm.number}. ${firm.name}',
+                    child: Container(
+                      width: 28,
+                      height: 20,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: firm.color,
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(color: Colors.black26),
+                      ),
+                      child: Text(
+                        '${firm.number}',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: firm.color.computeLuminance() > 0.45
+                              ? Colors.black87
+                              : Colors.white,
+                        ),
                       ),
                     ),
                   ),
