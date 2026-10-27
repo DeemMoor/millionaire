@@ -91,8 +91,8 @@ class CellView extends StatelessWidget {
             painter: _DiagonalPainter(Colors.blue.shade900),
             child: const Stack(
               children: [
-                Align(alignment: Alignment.topLeft, child: Text('1,2,3 →')),
-                Align(alignment: Alignment.bottomRight, child: Text('4,5,6 ↓')),
+                Align(alignment: Alignment.topLeft, child: Text('2–6 →')),
+                Align(alignment: Alignment.bottomRight, child: Text('7–12 ↓')),
               ],
             ),
           ),
@@ -164,8 +164,9 @@ void showCellInfo(BuildContext context, Game game, BoardCell cell) {
         'Теряешь ${(Game.crisisRate * 100).round()}% наличных',
       ],
     CellKind.elevator => [
-        'Выпало 1–3: едешь дальше по кругу.',
-        'Выпало 4–6: падаешь в шахту.',
+        'Стоишь на элеваторе и бросаешь:',
+        '2–6: дальше по кругу,',
+        '7–12: вниз в шахту на столько шагов.',
         'Из шахты выход только точным попаданием на элеватор.',
       ],
     CellKind.pot => ['Приз ${formatMoney(cell.amount)} за попадание из шахты'],

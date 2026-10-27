@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../model/board.dart';
 import '../model/game.dart';
 import '../model/money.dart';
 
@@ -13,8 +14,11 @@ class ControlPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     final player = game.currentPlayer;
     final status = switch (game.phase) {
-      Phase.roll => 'Ходит ${player.name}${player.inShaft ? ' (в шахте)' : ''}',
-      Phase.elevator => '${player.name} на элеваторе: 1–3 дальше, 4–6 в шахту',
+      Phase.roll => 'Ходит ${player.name}${switch (player) {
+          Player(inShaft: true) => ' (в шахте)',
+          Player(ringPos: elevatorIndex) => ' (элеватор: 7–12 вниз)',
+          _ => '',
+        }}',
       Phase.buy => '${player.name}: купить ${player.cell.name}?',
       Phase.gameOver => 'Победитель: ${game.winner!.name}!',
     };
@@ -62,8 +66,6 @@ class ControlPanel extends StatelessWidget {
 
   Widget _buttons(Player player) => switch (game.phase) {
         Phase.roll => FilledButton(onPressed: game.roll, child: const Text('Бросать')),
-        Phase.elevator =>
-          FilledButton(onPressed: game.rollElevator, child: const Text('Бросить кубик')),
         Phase.buy => Row(
             children: [
               Expanded(

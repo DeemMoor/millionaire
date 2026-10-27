@@ -4,16 +4,19 @@ import '../model/game.dart';
 import 'board_view.dart';
 import 'control_panel.dart';
 import 'players_panel.dart';
+import 'setup_screen.dart';
 
 class GameScreen extends StatefulWidget {
-  const GameScreen({super.key});
+  const GameScreen({super.key, required this.names});
+
+  final List<String> names;
 
   @override
   State<GameScreen> createState() => _GameScreenState();
 }
 
 class _GameScreenState extends State<GameScreen> {
-  Game _game = Game();
+  late final Game _game = Game(names: widget.names);
 
   @override
   void dispose() {
@@ -22,9 +25,9 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   void _newGame() {
-    final old = _game;
-    setState(() => _game = Game());
-    WidgetsBinding.instance.addPostFrameCallback((_) => old.dispose());
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute<void>(builder: (_) => const SetupScreen()),
+    );
   }
 
   @override

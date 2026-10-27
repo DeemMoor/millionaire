@@ -57,23 +57,38 @@ void main() {
     expect(game.current, 1);
   });
 
-  test('elevator 1-3 keeps the player on the ring', () {
-    final game = Game(random: _FixedDice([2, 4, 2]));
+  test('landing on the elevator just ends the turn', () {
+    final game = Game(random: _FixedDice([2, 4]));
     game.roll();
-    expect(game.phase, Phase.elevator);
-    game.rollElevator();
-    expect(game.players[0].inShaft, isFalse);
     expect(game.players[0].ringPos, elevatorIndex);
+    expect(game.players[0].inShaft, isFalse);
+    expect(game.current, 1);
+  });
+
+  test('from the elevator 2-6 goes along the ring', () {
+    final game = Game(random: _FixedDice([2, 3]));
+    game.players[0].ringPos = elevatorIndex;
+    game.roll();
+    expect(game.players[0].inShaft, isFalse);
+    expect(game.players[0].cell.name, 'Kawasaki');
+  });
+
+  test('from the elevator 7-12 goes down the shaft', () {
+    final game = Game(random: _FixedDice([3, 4]));
+    game.players[0].ringPos = elevatorIndex;
+    game.roll();
+    expect(game.players[0].inShaft, isTrue);
+    expect(game.players[0].cell.name, 'Donald');
   });
 
   test('shaft loops until landing exactly on the elevator', () {
     final game = Game(
       random: _FixedDice([
-        2, 4, 5, // p0: elevator, 5 -> shaft
-        1, 2, 1, 2, // p1, p2: Adidas, skip
-        1, 3, // p0: shaft 0 -> 4, prize
-        2, 3, 2, 3, // p1, p2: Suzuki, skip
-        3, 3, // p0: 4 + 6 = 10 -> elevator, out
+        3, 5, // p0: elevator + 8 -> TipTop
+        1, 2, 1, 2, // p1, p2: Adidas
+        2, 4, // p0: TipTop + 6 -> prize
+        2, 3, 2, 3, // p1, p2: Suzuki
+        5, 6, // p0: prize + 11 -> elevator
       ]),
     );
     void skipOthers() {
@@ -83,9 +98,10 @@ void main() {
       }
     }
 
+    game.players[0].ringPos = elevatorIndex;
     game.roll();
-    game.rollElevator();
-    expect(game.players[0].shaftPos, 0);
+    expect(game.players[0].cell.name, 'TipTop');
+    game.skip();
     skipOthers();
     game.roll();
     expect(game.players[0].cell.kind, CellKind.pot);
@@ -94,6 +110,33 @@ void main() {
     game.roll();
     expect(game.players[0].inShaft, isFalse);
     expect(game.players[0].ringPos, elevatorIndex);
+  });
+
+  test('after leaving the shaft the next 7-12 goes down again', () {
+    final game = Game(random: _FixedDice([5, 6, 1, 2, 1, 2, 5, 1]));
+    game.players[0]
+      ..ringPos = elevatorIndex
+      ..shaftPos = 4;
+    game.roll(); // prize + 11 -> elevator
+    expect(game.players[0].inShaft, isFalse);
+    for (var i = 0; i < 2; i++) {
+      game.roll();
+      game.skip();
+    }
+    game.roll(); // 5 + 1 = 6 -> along the ring
+    expect(game.players[0].cell.name, 'BANK');
+
+    final again = Game(random: _FixedDice([5, 6, 1, 2, 1, 2, 4, 3]));
+    again.players[0]
+      ..ringPos = elevatorIndex
+      ..shaftPos = 4;
+    again.roll();
+    for (var i = 0; i < 2; i++) {
+      again.roll();
+      again.skip();
+    }
+    again.roll(); // 4 + 3 = 7 -> down
+    expect(again.players[0].cell.name, 'Donald');
   });
 
   test('a double gives the same player another roll', () {
@@ -107,13 +150,12 @@ void main() {
     expect(game.current, 1);
   });
 
-  test('a double into the elevator still rolls again after it', () {
-    final game = Game(random: _FixedDice([3, 3, 2]));
+  test('a double onto the elevator rolls again from it', () {
+    final game = Game(random: _FixedDice([3, 3, 4, 4]));
     game.roll();
-    expect(game.phase, Phase.elevator);
-    game.rollElevator();
     expect(game.current, 0);
-    expect(game.phase, Phase.roll);
+    game.roll();
+    expect(game.players[0].cell.name, 'TipTop');
   });
 
   test('treasure pays 300 000', () {

@@ -6,7 +6,7 @@ import 'package:flutter/painting.dart';
 import 'board.dart';
 import 'money.dart';
 
-enum Phase { roll, elevator, buy, gameOver }
+enum Phase { roll, buy, gameOver }
 
 const playerColors = [Color(0xFFE53935), Color(0xFF1E88E5), Color(0xFF43A047)];
 
@@ -41,6 +41,9 @@ class Game extends ChangeNotifier {
 
   /// Rent multiplier when the owner holds every firm of the group.
   static const groupRentMultiplier = 2;
+
+  /// Standing on the elevator, a roll of at least this much goes down the shaft.
+  static const elevatorDownFrom = 7;
 
   /// Share of cash lost on the CRISIS cell.
   static const crisisRate = 0.2;
@@ -95,11 +98,15 @@ class Game extends ChangeNotifier {
     _extraRoll = dice[0] == dice[1];
     final steps = dice[0] + dice[1];
     final player = currentPlayer;
-    if (player.inShaft) {
-      player.shaftPos = (player.shaftPos! + steps) % shaftCells.length;
+    final goesDown = !player.inShaft &&
+        player.ringPos == elevatorIndex &&
+        steps >= elevatorDownFrom;
+    if (player.inShaft || goesDown) {
+      if (goesDown) log.add('${player.name}: $steps, вниз в шахту');
+      player.shaftPos = ((player.shaftPos ?? 0) + steps) % shaftCells.length;
       if (player.shaftPos == 0) {
         player.shaftPos = null;
-        log.add('${player.name}: выход из шахты');
+        log.add('${player.name}: снова на элеваторе');
         return _endTurn();
       }
     } else {
@@ -112,20 +119,6 @@ class Game extends ChangeNotifier {
       }
     }
     _resolve(player);
-  }
-
-  void rollElevator() {
-    if (phase != Phase.elevator) return;
-    final die = _die();
-    dice = [die];
-    final player = currentPlayer;
-    if (die >= 4) {
-      player.shaftPos = 0;
-      log.add('${player.name}: элеватор $die, вниз в шахту');
-    } else {
-      log.add('${player.name}: элеватор $die, едем дальше');
-    }
-    _endTurn();
   }
 
   void buy() {
@@ -166,9 +159,7 @@ class Game extends ChangeNotifier {
         player.balance -= loss;
         log.add('${player.name}: кризис, −${formatMoney(loss)}');
       case CellKind.elevator:
-        phase = Phase.elevator;
-        notifyListeners();
-        return;
+        log.add('${player.name}: на элеваторе');
       case CellKind.start:
         break; // the bonus is paid while moving
     }

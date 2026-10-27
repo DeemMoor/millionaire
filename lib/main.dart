@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'ui/game_screen.dart';
+import 'ui/setup_screen.dart';
 
 void main() => runApp(const MillionaireApp());
 
@@ -13,7 +13,7 @@ class MillionaireApp extends StatelessWidget {
       title: 'Миллионер',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(colorSchemeSeed: Colors.teal),
-      home: const GameScreen(),
+      home: const SetupScreen(),
     );
   }
 }
