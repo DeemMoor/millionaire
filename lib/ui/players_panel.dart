@@ -32,7 +32,8 @@ class _PlayerCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final firms = game.firmsOf(player);
-    return Container(
+    final worth = game.netWorth(player);
+    final card = Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
@@ -53,11 +54,10 @@ class _PlayerCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   player.name,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
-                    decoration: player.bankrupt ? TextDecoration.lineThrough : null,
                   ),
                 ),
               ),
@@ -77,7 +77,49 @@ class _PlayerCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 6),
-          if (firms.isEmpty)
+          if (player.bankrupt) ...[
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(
+                color: Colors.red.shade700,
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: const Text(
+                'БАНКРОТ',
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              player.bankruptReason ?? '',
+              style: const TextStyle(color: Colors.white70, fontSize: 12),
+            ),
+          ] else ...[
+            Row(
+              children: [
+                Expanded(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(3),
+                    child: LinearProgressIndicator(
+                      value: (worth / Game.winTarget).clamp(0, 1).toDouble(),
+                      minHeight: 6,
+                      color: const Color(0xFFFFEB3B),
+                      backgroundColor: Colors.white12,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'капитал ${formatMoney(worth)}',
+                  style: const TextStyle(color: Colors.white70, fontSize: 12),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+          ],
+          if (player.bankrupt)
+            const SizedBox.shrink()
+          else if (firms.isEmpty)
             const Text('нет фирм', style: TextStyle(color: Colors.white38))
           else
             Wrap(
@@ -107,5 +149,6 @@ class _PlayerCard extends StatelessWidget {
         ],
       ),
     );
+    return player.bankrupt ? Opacity(opacity: 0.55, child: card) : card;
   }
 }

@@ -190,17 +190,41 @@ void main() {
     expect(game.players[0].balance, 40000);
   });
 
-  test('bankrupt player drops out and loses firms', () {
+  test('firms are sold to the bank, cheapest first, to pay rent', () {
     final game = Game(random: _FixedDice([3, 4, 1, 2]));
-    game.owners[3] = 0;
-    game.owners[1] = 1;
+    game.owners[3] = 0; // Adidas, rent 1 000
+    game.owners[1] = 1; // Puma, 10 000
+    game.owners[10] = 1; // Audi, 20 000
     game.players[1].balance = 300;
+    game.roll(); // p0: bank
+    game.roll(); // p1: Adidas
+    expect(game.players[1].bankrupt, isFalse);
+    expect(game.owners.containsKey(1), isFalse);
+    expect(game.owners[10], 1);
+    expect(game.players[1].balance, 4300);
+  });
+
+  test('bankrupt only when even selling all firms is not enough', () {
+    final game = Game(random: _FixedDice([3, 4, 1, 2]));
+    for (var n = 1; n <= 5; n++) {
+      game.owners[n] = 0; // whole sport group: rent 2 000 for Adidas
+    }
+    game.players[1].balance = 0;
     game.roll();
     game.roll();
     expect(game.players[1].bankrupt, isTrue);
-    expect(game.players[0].balance, 60300);
-    expect(game.owners.containsKey(1), isFalse);
+    expect(game.players[1].bankruptReason, contains('Adidas'));
+    expect(game.players[0].balance, 60000);
     expect(game.current, 2);
+  });
+
+  test('first to a million net worth wins', () {
+    final game = Game(random: _FixedDice([3, 4]));
+    game.players[0].balance = 980000;
+    game.owners[1] = 0; // + 10 000 in firms
+    game.roll(); // + 10 000 bank: 990 000 cash + 10 000 firm
+    expect(game.phase, Phase.gameOver);
+    expect(game.winner, game.players[0]);
   });
 
   test('last player standing wins', () {

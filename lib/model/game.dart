@@ -22,6 +22,9 @@ class Player {
   int? shaftPos;
   bool bankrupt = false;
 
+  /// Why the player went bankrupt, shown on their card.
+  String? bankruptReason;
+
   bool get inShaft => shaftPos != null;
   BoardCell get cell => inShaft ? shaftCells[shaftPos!] : ringCells[ringPos];
 }
@@ -48,6 +51,12 @@ class Game extends ChangeNotifier {
   /// Share of cash lost on the CRISIS cell.
   static const crisisRate = 0.2;
 
+  /// Share of the price the bank pays for a firm sold to cover a debt.
+  static const sellRate = 0.5;
+
+  /// Net worth (cash + firm prices) that wins the game.
+  static const winTarget = 1000000;
+
   final int startBalance;
   final Random _random;
   final List<Player> players;
@@ -62,9 +71,12 @@ class Game extends ChangeNotifier {
   /// Set by a double on the main roll: the same player rolls again.
   bool _extraRoll = false;
 
+  Player? winner;
+
   Player get currentPlayer => players[current];
-  Player? get winner =>
-      phase == Phase.gameOver ? players.firstWhere((p) => !p.bankrupt) : null;
+
+  int netWorth(Player player) =>
+      player.balance + firmsOf(player).fold(0, (sum, f) => sum + f.amount);
 
   Player? ownerOf(BoardCell firm) {
     final index = owners[firm.number];
@@ -168,22 +180,39 @@ class Game extends ChangeNotifier {
 
   void _payRent(Player payer, Player owner, BoardCell firm) {
     final rent = rentFor(firm);
+    _sellFirmsToCover(payer, rent);
     final paid = min(rent, payer.balance);
     payer.balance -= paid;
     owner.balance += paid;
     log.add('${payer.name} → ${owner.name}: рента ${formatMoney(paid)} за ${firm.name}');
     if (paid < rent) {
       payer.bankrupt = true;
-      owners.removeWhere((_, index) => players[index] == payer);
-      log.add('${payer.name}: банкрот, фирмы свободны');
+      payer.bankruptReason =
+          'не хватило ${formatMoney(rent - paid)} на ренту за ${firm.name}';
+      log.add('${payer.name}: банкрот, ${payer.bankruptReason}');
+    }
+  }
+
+  /// Sells the debtor's firms to the bank, cheapest first, until [amount] is covered.
+  void _sellFirmsToCover(Player player, int amount) {
+    final firms = firmsOf(player)..sort((a, b) => a.amount.compareTo(b.amount));
+    for (final firm in firms) {
+      if (player.balance >= amount) return;
+      final price = (firm.amount * sellRate).round();
+      owners.remove(firm.number);
+      player.balance += price;
+      log.add('${player.name}: продажа ${firm.name} банку за ${formatMoney(price)}');
     }
   }
 
   void _endTurn() {
     final alive = players.where((p) => !p.bankrupt).toList();
-    if (alive.length <= 1) {
+    final rich = alive.where((p) => netWorth(p) >= winTarget).toList()
+      ..sort((a, b) => netWorth(b).compareTo(netWorth(a)));
+    if (alive.length <= 1 || rich.isNotEmpty) {
       phase = Phase.gameOver;
-      log.add('Победитель: ${alive.first.name}');
+      winner = rich.isNotEmpty ? rich.first : alive.first;
+      log.add('Победитель: ${winner!.name}');
     } else {
       if (_extraRoll && !currentPlayer.bankrupt) {
         log.add('${currentPlayer.name}: дубль, ещё бросок');

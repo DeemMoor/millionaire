@@ -74,7 +74,7 @@ class CellView extends StatelessWidget {
             ],
           ),
         CellKind.start => Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Transform.rotate(
                 angle: -0.4,
