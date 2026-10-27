@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../model/game.dart';
+import 'app_menu.dart';
 import 'board_view.dart';
 import 'control_panel.dart';
 import 'players_panel.dart';
@@ -33,6 +34,28 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
+  Future<void> _confirmNewGame() async {
+    if (_game.phase == Phase.gameOver) return _newGame();
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Новая игра'),
+        content: const Text('Текущая партия будет потеряна. Начать заново?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Отмена'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Начать'),
+          ),
+        ],
+      ),
+    );
+    if (ok == true && mounted) _newGame();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,41 +68,47 @@ class _GameScreenState extends State<GameScreen> {
           ),
         ),
         child: SafeArea(
-          child: ListenableBuilder(
-            listenable: _game,
-            builder: (context, _) => LayoutBuilder(
-              builder: (context, constraints) {
-                final controls = ControlPanel(game: _game, onNewGame: _newGame);
-                final players = PlayersPanel(game: _game);
-                final landscape =
-                    constraints.maxWidth / constraints.maxHeight >= 1.3;
-                if (landscape) {
-                  return Center(
-                    child: FittedBox(
-                      child: BoardView(
-                        game: _game,
-                        left: _ShrinkToFit(child: players),
-                        right: _ShrinkToFit(child: controls),
-                      ),
-                    ),
+          child: AppMenu(
+            onNewGame: _confirmNewGame,
+            child: ListenableBuilder(
+              listenable: _game,
+              builder: (context, _) => LayoutBuilder(
+                builder: (context, constraints) {
+                  final controls = ControlPanel(
+                    game: _game,
+                    onNewGame: _newGame,
                   );
-                }
-                return Column(
-                  children: [
-                    FittedBox(child: BoardView(game: _game)),
-                    Expanded(
-                      child: ListView(
-                        padding: const EdgeInsets.all(16),
-                        children: [
-                          controls,
-                          const SizedBox(height: 12),
-                          players,
-                        ],
+                  final players = PlayersPanel(game: _game);
+                  final landscape =
+                      constraints.maxWidth / constraints.maxHeight >= 1.3;
+                  if (landscape) {
+                    return Center(
+                      child: FittedBox(
+                        child: BoardView(
+                          game: _game,
+                          left: _ShrinkToFit(child: players),
+                          right: _ShrinkToFit(child: controls),
+                        ),
                       ),
-                    ),
-                  ],
-                );
-              },
+                    );
+                  }
+                  return Column(
+                    children: [
+                      FittedBox(child: BoardView(game: _game)),
+                      Expanded(
+                        child: ListView(
+                          padding: const EdgeInsets.all(16),
+                          children: [
+                            controls,
+                            const SizedBox(height: 12),
+                            players,
+                          ],
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
             ),
           ),
         ),

@@ -25,22 +25,22 @@ Rect _grid(int col, int row, [int spanCols = 1, int spanRows = 1]) {
 
 /// Ring layout on a 15x7 grid, clockwise from the top-left corner.
 Rect ringRect(int i) => switch (i) {
-      < elevatorIndex => _grid(i, 0),
-      elevatorIndex => _grid(6, 0, 2),
-      <= 11 => _grid(i + 1, 0),
-      12 => _grid(13, 0),
-      13 => _grid(14, 0),
-      <= 18 => _grid(14, i - 13),
-      19 => _grid(14, 6),
-      <= 33 => _grid(33 - i, 6),
-      _ => _grid(0, 39 - i),
-    };
+  < elevatorIndex => _grid(i, 0),
+  elevatorIndex => _grid(6, 0, 2),
+  <= 11 => _grid(i + 1, 0),
+  12 => _grid(13, 0),
+  13 => _grid(14, 0),
+  <= 18 => _grid(14, i - 13),
+  19 => _grid(14, 6),
+  <= 33 => _grid(33 - i, 6),
+  _ => _grid(0, 39 - i),
+};
 
 /// The shaft hangs down from the elevator, the prize sits at its bottom.
 Rect shaftRect(int i) => switch (i) {
-      0 => ringRect(elevatorIndex),
-      _ => _grid(6, i, 2),
-    };
+  0 => ringRect(elevatorIndex),
+  _ => _grid(6, i, 2),
+};
 
 /// Where the side panels go: left and right of the shaft.
 final leftPanelRect = _grid(1, 1, 5, 5).deflate(10);
@@ -73,8 +73,10 @@ class BoardView extends StatelessWidget {
             _cell(context, ringRect(i), ringCells[i]),
           for (var i = 1; i < shaftCells.length; i++)
             _cell(context, shaftRect(i), shaftCells[i]),
-          if (left != null) Positioned.fromRect(rect: leftPanelRect, child: left!),
-          if (right != null) Positioned.fromRect(rect: rightPanelRect, child: right!),
+          if (left != null)
+            Positioned.fromRect(rect: leftPanelRect, child: left!),
+          if (right != null)
+            Positioned.fromRect(rect: rightPanelRect, child: right!),
           for (var i = 0; i < game.players.length; i++)
             if (!game.players[i].bankrupt) _token(i),
         ],
@@ -82,11 +84,15 @@ class BoardView extends StatelessWidget {
     );
   }
 
-  Widget _cell(BuildContext context, Rect rect, BoardCell cell) => Positioned.fromRect(
+  Widget _cell(BuildContext context, Rect rect, BoardCell cell) =>
+      Positioned.fromRect(
         rect: rect,
         child: GestureDetector(
           onTap: () => showCellInfo(context, game, cell),
-          child: CellView(cell: cell, owner: cell.isFirm ? game.ownerOf(cell) : null),
+          child: CellView(
+            cell: cell,
+            owner: cell.isFirm ? game.ownerOf(cell) : null,
+          ),
         ),
       );
 
@@ -107,10 +113,19 @@ class BoardView extends StatelessWidget {
             shape: BoxShape.circle,
             gradient: RadialGradient(
               center: const Alignment(-0.35, -0.4),
-              colors: [Color.lerp(player.color, Colors.white, 0.55)!, player.color],
+              colors: [
+                Color.lerp(player.color, Colors.white, 0.55)!,
+                player.color,
+              ],
             ),
             border: Border.all(color: Colors.white, width: 2.5),
-            boxShadow: const [BoxShadow(blurRadius: 4, offset: Offset(0, 2), color: Colors.black54)],
+            boxShadow: const [
+              BoxShadow(
+                blurRadius: 4,
+                offset: Offset(0, 2),
+                color: Colors.black54,
+              ),
+            ],
           ),
         ),
       ),

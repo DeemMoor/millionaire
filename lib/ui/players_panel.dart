@@ -17,14 +17,22 @@ class PlayersPanel extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         for (var i = 0; i < game.players.length; i++)
-          _PlayerCard(game: game, player: game.players[i], isCurrent: i == game.current),
+          _PlayerCard(
+            game: game,
+            player: game.players[i],
+            isCurrent: i == game.current,
+          ),
       ],
     );
   }
 }
 
 class _PlayerCard extends StatelessWidget {
-  const _PlayerCard({required this.game, required this.player, required this.isCurrent});
+  const _PlayerCard({
+    required this.game,
+    required this.player,
+    required this.isCurrent,
+  });
 
   final Game game;
   final Player player;
@@ -87,7 +95,10 @@ class _PlayerCard extends StatelessWidget {
               ),
               child: const Text(
                 'БАНКРОТ',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
             const SizedBox(height: 4),
@@ -146,7 +157,9 @@ class _PlayerCard extends StatelessWidget {
                             color: Colors.white,
                             shape: BoxShape.circle,
                           ),
-                          child: SvgPicture.asset('assets/emblems/${firm.emblem}.svg'),
+                          child: SvgPicture.asset(
+                            'assets/emblems/${firm.emblem}.svg',
+                          ),
                         ),
                         const SizedBox(width: 4),
                         Text(

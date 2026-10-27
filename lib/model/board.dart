@@ -28,18 +28,24 @@ class BoardCell {
   bool get isFirm => kind == CellKind.firm;
 
   /// Asset name in assets/emblems/ (see tool/emblems.py).
-  String get emblem => isFirm ? name.toLowerCase().replaceAll(' ', '') : kind.name;
+  String get emblem =>
+      isFirm ? name.toLowerCase().replaceAll(' ', '') : kind.name;
 }
 
-BoardCell _firm(int number, String name, int price, FirmGroup group, int color) =>
-    BoardCell(
-      kind: CellKind.firm,
-      name: name,
-      number: number,
-      amount: price,
-      group: group,
-      color: Color(color),
-    );
+BoardCell _firm(
+  int number,
+  String name,
+  int price,
+  FirmGroup group,
+  int color,
+) => BoardCell(
+  kind: CellKind.firm,
+  name: name,
+  number: number,
+  amount: price,
+  group: group,
+  color: Color(color),
+);
 
 BoardCell _bank(int amount) =>
     BoardCell(kind: CellKind.bank, name: 'BANK', amount: amount);
@@ -99,9 +105,9 @@ final ringCells = <BoardCell>[
 /// The only way out is landing exactly on index 0.
 final shaftCells = <BoardCell>[
   ringCells[elevatorIndex],
-  _firm(31, 'Turbo', 20000, FirmGroup.shaft, 0xFFE53935),
-  _firm(32, 'Donald', 20000, FirmGroup.shaft, 0xFF76FF03),
-  _firm(33, 'TipTop', 20000, FirmGroup.shaft, 0xFFFF1744),
+  _firm(31, 'Turbo', 20000, FirmGroup.shaft, 0xFFB71C1C),
+  _firm(32, 'Donald', 20000, FirmGroup.shaft, 0xFFE53935),
+  _firm(33, 'Tipi Tip', 20000, FirmGroup.shaft, 0xFF29B6F6),
   const BoardCell(kind: CellKind.pot, name: 'Приз', amount: 15000),
 ];
 

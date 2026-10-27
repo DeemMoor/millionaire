@@ -14,7 +14,8 @@ class ControlPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     final player = game.currentPlayer;
     final status = switch (game.phase) {
-      Phase.roll => 'Ходит ${player.name}${switch (player) {
+      Phase.roll =>
+        'Ходит ${player.name}${switch (player) {
           Player(inShaft: true) => ' (в шахте)',
           Player(ringPos: elevatorIndex) => ' (элеватор: 7–12 вниз)',
           _ => '',
@@ -36,7 +37,10 @@ class ControlPanel extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               for (final value in game.dice)
-                Padding(padding: const EdgeInsets.all(6), child: DiceFace(value: value)),
+                Padding(
+                  padding: const EdgeInsets.all(6),
+                  child: DiceFace(value: value),
+                ),
             ],
           ),
           const SizedBox(height: 10),
@@ -65,29 +69,35 @@ class ControlPanel extends StatelessWidget {
   }
 
   Widget _buttons(Player player) => switch (game.phase) {
-        Phase.roll => FilledButton(onPressed: game.roll, child: const Text('Бросать')),
-        Phase.buy => Row(
-            children: [
-              Expanded(
-                child: FilledButton(
-                  onPressed: game.buy,
-                  child: FittedBox(
-                    child: Text('Купить за ${formatMoney(player.cell.amount)}'),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: game.skip,
-                  style: OutlinedButton.styleFrom(foregroundColor: Colors.white),
-                  child: const FittedBox(child: Text('Пропустить')),
-                ),
-              ),
-            ],
+    Phase.roll => FilledButton(
+      onPressed: game.roll,
+      child: const Text('Бросать'),
+    ),
+    Phase.buy => Row(
+      children: [
+        Expanded(
+          child: FilledButton(
+            onPressed: game.buy,
+            child: FittedBox(
+              child: Text('Купить за ${formatMoney(player.cell.amount)}'),
+            ),
           ),
-        Phase.gameOver => FilledButton(onPressed: onNewGame, child: const Text('Новая игра')),
-      };
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: OutlinedButton(
+            onPressed: game.skip,
+            style: OutlinedButton.styleFrom(foregroundColor: Colors.white),
+            child: const FittedBox(child: Text('Пропустить')),
+          ),
+        ),
+      ],
+    ),
+    Phase.gameOver => FilledButton(
+      onPressed: onNewGame,
+      child: const Text('Новая игра'),
+    ),
+  };
 }
 
 class DiceFace extends StatelessWidget {

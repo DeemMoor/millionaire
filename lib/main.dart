@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'ui/setup_screen.dart';
 
@@ -13,6 +14,9 @@ class MillionaireApp extends StatelessWidget {
       title: 'Миллионер',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(colorSchemeSeed: Colors.teal, fontFamily: 'PTSans'),
+      locale: const Locale('ru'),
+      supportedLocales: const [Locale('ru')],
+      localizationsDelegates: GlobalMaterialLocalizations.delegates,
       home: const SetupScreen(),
     );
   }

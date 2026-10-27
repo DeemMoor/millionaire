@@ -84,9 +84,9 @@ void main() {
   test('shaft loops until landing exactly on the elevator', () {
     final game = Game(
       random: _FixedDice([
-        3, 5, // p0: elevator + 8 -> TipTop
+        3, 5, // p0: elevator + 8 -> Tipi Tip
         1, 2, 1, 2, // p1, p2: Adidas
-        2, 4, // p0: TipTop + 6 -> prize
+        2, 4, // p0: Tipi Tip + 6 -> prize
         2, 3, 2, 3, // p1, p2: Suzuki
         5, 6, // p0: prize + 11 -> elevator
       ]),
@@ -100,7 +100,7 @@ void main() {
 
     game.players[0].ringPos = elevatorIndex;
     game.roll();
-    expect(game.players[0].cell.name, 'TipTop');
+    expect(game.players[0].cell.name, 'Tipi Tip');
     game.skip();
     skipOthers();
     game.roll();
@@ -155,7 +155,7 @@ void main() {
     game.roll();
     expect(game.current, 0);
     game.roll();
-    expect(game.players[0].cell.name, 'TipTop');
+    expect(game.players[0].cell.name, 'Tipi Tip');
   });
 
   test('treasure pays 300 000', () {

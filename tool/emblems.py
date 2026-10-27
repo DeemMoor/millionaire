@@ -225,21 +225,28 @@ E['7up'] = svg(
 
 # --- shaft ---------------------------------------------------------------
 E['turbo'] = svg(
-    f'<rect x="8" y="16" width="48" height="32" rx="4" fill="#E53935" {S}/>'
-    f'<path d="M8 22 L56 22 M8 42 L56 42" stroke="#FFEB3B" stroke-width="2.5"/>'
-    '<path d="M34 24 L26 33 L32 33 L28 40 L38 30 L32 30 Z" fill="#FFEB3B" stroke="#263238" stroke-width="1.5" stroke-linejoin="round"/>'
-    '<text x="48" y="34" font-family="sans-serif" font-size="7" font-weight="bold" fill="#fff" text-anchor="middle">GUM</text>')
+    f'<rect x="4" y="16" width="56" height="34" rx="4" fill="#B71C1C" {S}/>'
+    f'<rect x="48" y="16" width="12" height="34" fill="#ECEFF1" {S}/>'
+    + ''.join(f'<rect x="{12 + c * 6}" y="{20 + r * 5}" width="6" height="5" fill="#263238"/>'
+              for r in range(3) for c in range(4) if (r + c) % 2 == 0)
+    + '<rect x="12" y="20" width="24" height="15" fill="none" stroke="#fff" stroke-width="1"/>'
+    '<path d="M12 20 L12 46" stroke="#263238" stroke-width="2"/>'
+    '<path d="M10 42 h34" stroke="#FFEB3B" stroke-width="4" stroke-linecap="round"/>')
 E['donald'] = svg(
     f'<circle cx="34" cy="26" r="20" fill="#F48FB1" {S}/>'
     '<ellipse cx="27" cy="18" rx="6" ry="4" fill="#fff" opacity=".6" transform="rotate(-30 27 18)"/>'
     f'<path d="M14 54 C14 44 22 42 30 46 C36 42 46 44 46 54 Z" fill="#FFCC80" {S}/>'
     f'<path d="M28 46 C30 50 34 50 36 46" fill="#F48FB1" {S}/>')
-E['tiptop'] = svg(
-    f'<path d="M32 36 L32 60" stroke="#ECEFF1" stroke-width="5" stroke-linecap="round"/>'
-    f'<path d="M32 36 L32 60" stroke="{INK}" stroke-width="1" fill="none"/>'
-    f'<circle cx="32" cy="22" r="17" fill="#FF1744" {S}/>'
-    '<path d="M32 22 C32 16 38 14 41 18 C44 23 40 30 32 30 C24 30 19 24 21 17 C23 10 32 8 37 11" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/>')
-
+E['tipitip'] = svg(
+    f'<path d="M10 62 C10 50 18 45 26 45 C34 45 42 50 42 62 Z" fill="#E53935" {S}/>'
+    f'<path d="M20 45 L26 50 L32 45 L32 51 L26 48 L20 51 Z" fill="#2E7D32" {S}/>'
+    f'<ellipse cx="25" cy="30" rx="12" ry="14" fill="#fff" {S}/>'
+    f'<path d="M33 24 C42 20 52 14 61 12 C57 18 46 27 36 32 Z" fill="#fff" {S}/>'
+    f'<circle cx="23" cy="27" r="5" fill="#fff" {S}/><circle cx="32" cy="26" r="4.5" fill="#fff" {S}/>'
+    '<path d="M28 27 L27.5 26.5" stroke="#263238" stroke-width="2"/>'
+    '<circle cx="24" cy="28" r="1.8" fill="#263238"/><circle cx="33" cy="27" r="1.6" fill="#263238"/>'
+    f'<path d="M20 37 C24 41 30 41 33 37" fill="#E53935" {S}/>'
+    f'<path d="M10 22 C10 9 28 6 36 14 L42 16 C33 16 20 19 10 22 Z" fill="#1565C0" {S}/>')
 # --- special cells -------------------------------------------------------
 E['start'] = svg(
     f'<path d="M14 6 L14 60" {S}/>'

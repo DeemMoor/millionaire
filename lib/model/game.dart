@@ -34,11 +34,15 @@ class Game extends ChangeNotifier {
     List<String> names = const ['Игрок 1', 'Игрок 2', 'Игрок 3'],
     this.startBalance = 50000,
     Random? random,
-  })  : _random = random ?? Random(),
-        players = [
-          for (var i = 0; i < names.length; i++)
-            Player(names[i], playerColors[i % playerColors.length], startBalance),
-        ];
+  }) : _random = random ?? Random(),
+       players = [
+         for (var i = 0; i < names.length; i++)
+           Player(
+             names[i],
+             playerColors[i % playerColors.length],
+             startBalance,
+           ),
+       ];
 
   static const rentRate = 0.1;
 
@@ -84,9 +88,9 @@ class Game extends ChangeNotifier {
   }
 
   List<BoardCell> firmsOf(Player player) => [
-        for (final entry in owners.entries)
-          if (players[entry.value] == player) firmsByNumber[entry.key]!,
-      ]..sort((a, b) => a.number!.compareTo(b.number!));
+    for (final entry in owners.entries)
+      if (players[entry.value] == player) firmsByNumber[entry.key]!,
+  ]..sort((a, b) => a.number!.compareTo(b.number!));
 
   int rentFor(BoardCell firm) {
     var rent = (firm.amount * rentRate).round();
@@ -110,7 +114,8 @@ class Game extends ChangeNotifier {
     _extraRoll = dice[0] == dice[1];
     final steps = dice[0] + dice[1];
     final player = currentPlayer;
-    final goesDown = !player.inShaft &&
+    final goesDown =
+        !player.inShaft &&
         player.ringPos == elevatorIndex &&
         steps >= elevatorDownFrom;
     if (player.inShaft || goesDown) {
@@ -139,7 +144,9 @@ class Game extends ChangeNotifier {
     final firm = player.cell;
     player.balance -= firm.amount;
     owners[firm.number!] = current;
-    log.add('${player.name}: покупка ${firm.name} за ${formatMoney(firm.amount)}');
+    log.add(
+      '${player.name}: покупка ${firm.name} за ${formatMoney(firm.amount)}',
+    );
     _endTurn();
   }
 
@@ -169,7 +176,7 @@ class Game extends ChangeNotifier {
       case CellKind.crisis:
         final loss = (player.balance * crisisRate).round();
         player.balance -= loss;
-        log.add('${player.name}: кризис, −${formatMoney(loss)}');
+        log.add('${player.name}: кризис, -${formatMoney(loss)}');
       case CellKind.elevator:
         log.add('${player.name}: на элеваторе');
       case CellKind.start:
@@ -184,7 +191,9 @@ class Game extends ChangeNotifier {
     final paid = min(rent, payer.balance);
     payer.balance -= paid;
     owner.balance += paid;
-    log.add('${payer.name} → ${owner.name}: рента ${formatMoney(paid)} за ${firm.name}');
+    log.add(
+      '${payer.name} » ${owner.name}: рента ${formatMoney(paid)} за ${firm.name}',
+    );
     if (paid < rent) {
       payer.bankrupt = true;
       payer.bankruptReason =
@@ -201,7 +210,9 @@ class Game extends ChangeNotifier {
       final price = (firm.amount * sellRate).round();
       owners.remove(firm.number);
       player.balance += price;
-      log.add('${player.name}: продажа ${firm.name} банку за ${formatMoney(price)}');
+      log.add(
+        '${player.name}: продажа ${firm.name} банку за ${formatMoney(price)}',
+      );
     }
   }
 
