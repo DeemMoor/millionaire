@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <base href="$FLUTTER_BASE_HREF">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Миллионер: настольная экономическая игра на троих">
+  <meta name="theme-color" content="#0B5C5C">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Миллионер">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <link rel="icon" type="image/png" href="favicon.png"/>
+  <link rel="manifest" href="manifest.json">
+  <title>Миллионер</title>
+  <style>
+    html, body { margin: 0; height: 100%; background: #0B5C5C; }
+    #splash {
+      position: fixed; inset: 0; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 24px;
+      font: bold 40px system-ui, sans-serif; color: #FFEB3B;
+    }
+    #splash .spinner {
+      width: 44px; height: 44px; border-radius: 50%;
+      border: 5px solid rgba(255, 255, 255, .25); border-top-color: #FFEB3B;
+      animation: spin .9s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div id="splash">$ Миллионер $<div class="spinner"></div></div>
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+</html>
