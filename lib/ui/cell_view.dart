@@ -1,8 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../model/board.dart';
 import '../model/game.dart';
 import '../model/money.dart';
+
+const _ink = Color(0xFF263238);
+
+Color _textOn(Color background) =>
+    background.computeLuminance() > 0.45 ? _ink : Colors.white;
+
+Color _cellColor(BoardCell cell) => switch (cell.kind) {
+      CellKind.firm => cell.color,
+      CellKind.bank => const Color(0xFFE3F2FD),
+      CellKind.start => const Color(0xFFFFFFFF),
+      CellKind.treasure => const Color(0xFFFFD54F),
+      CellKind.crisis => const Color(0xFFFFEBEE),
+      CellKind.elevator => const Color(0xFFECEFF1),
+      CellKind.pot => const Color(0xFFFFFFFF),
+    };
 
 class CellView extends StatelessWidget {
   const CellView({super.key, required this.cell, this.owner});
@@ -12,142 +28,246 @@ class CellView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fg = cell.color.computeLuminance() > 0.45 ? Colors.black87 : Colors.white;
-    final borderColor = owner?.color ??
-        (cell.kind == CellKind.pot ? Colors.red.shade700 : Colors.black26);
-    final borderWidth = owner != null || cell.kind == CellKind.pot ? 4.0 : 1.0;
+    final color = _cellColor(cell);
+    final fg = _textOn(color);
+    final owned = owner != null;
+    final pot = cell.kind == CellKind.pot;
     return Container(
-      margin: const EdgeInsets.all(1.5),
-      padding: const EdgeInsets.all(4),
+      margin: const EdgeInsets.all(2),
       decoration: BoxDecoration(
-        color: cell.color,
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: borderColor, width: borderWidth),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color.lerp(color, Colors.white, 0.3)!, Color.lerp(color, Colors.black, 0.08)!],
+        ),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: owner?.color ?? (pot ? Colors.red.shade700 : Colors.black.withValues(alpha: 0.18)),
+          width: owned || pot ? 3.5 : 1,
+        ),
+        boxShadow: [
+          const BoxShadow(blurRadius: 4, offset: Offset(0, 2), color: Colors.black38),
+          if (owned) BoxShadow(blurRadius: 8, spreadRadius: 1, color: owner!.color.withValues(alpha: 0.7)),
+        ],
       ),
+      padding: const EdgeInsets.fromLTRB(5, 5, 5, 4),
       child: DefaultTextStyle(
-        style: TextStyle(color: fg, fontWeight: FontWeight.bold, fontSize: 14),
+        style: TextStyle(color: fg, fontFamily: 'PTSans', fontWeight: FontWeight.bold, fontSize: 12),
         child: _content(fg),
       ),
     );
   }
 
   Widget _content(Color fg) => switch (cell.kind) {
-        CellKind.firm => Column(
-            children: [
-              Expanded(
-                child: Center(
+        CellKind.firm => _Card(
+            emblem: cell.emblem,
+            title: cell.name,
+            titleColor: fg,
+            footer: Row(
+              children: [
+                _NumberBadge(cell.number!),
+                const SizedBox(width: 4),
+                Expanded(
                   child: FittedBox(
                     fit: BoxFit.scaleDown,
-                    child: Text(cell.name, textAlign: TextAlign.center),
+                    alignment: Alignment.centerRight,
+                    child: Text(formatMoney(cell.amount)),
                   ),
                 ),
-              ),
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 3),
-                    color: Colors.white,
-                    child: Text(
-                      '${cell.number}',
-                      style: const TextStyle(color: Colors.black, fontSize: 11),
-                    ),
-                  ),
-                  const SizedBox(width: 3),
-                  Expanded(
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      alignment: Alignment.centerRight,
-                      child: Text(formatMoney(cell.amount),
-                          style: const TextStyle(fontSize: 12)),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        CellKind.bank => Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              const Text('BANK', style: TextStyle(fontSize: 16)),
-              Icon(Icons.account_balance, color: Colors.blue.shade800, size: 22),
-              FittedBox(child: Text(formatMoney(cell.amount))),
-            ],
-          ),
-        CellKind.start => Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Transform.rotate(
-                angle: -0.4,
-                child: Text('Start',
-                    style: TextStyle(fontSize: 22, color: Colors.blue.shade800)),
-              ),
-              FittedBox(
-                child: Text('+${formatMoney(cell.amount)}',
-                    style: TextStyle(color: Colors.green.shade800)),
-              ),
-            ],
-          ),
-        CellKind.elevator => CustomPaint(
-            painter: _DiagonalPainter(Colors.blue.shade900),
-            child: const Stack(
-              children: [
-                Align(alignment: Alignment.topLeft, child: Text('2–6 →')),
-                Align(alignment: Alignment.bottomRight, child: Text('7–12 ↓')),
               ],
             ),
           ),
-        CellKind.crisis => ClipRect(
-            child: Center(
-              child: Transform.rotate(
-                angle: -0.6,
-                child: Text(
-                  'CRISIS\nCRISIS\nCRISIS',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.red.shade700, height: 1.1),
-                ),
-              ),
-            ),
+        CellKind.bank => _Card(
+            emblem: cell.emblem,
+            title: 'BANK',
+            titleColor: Colors.blue.shade900,
+            footer: _Amount('+${formatMoney(cell.amount)}', Colors.green.shade800),
           ),
-        CellKind.treasure => Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        CellKind.start => _Card(
+            emblem: cell.emblem,
+            title: 'START',
+            titleColor: Colors.blue.shade800,
+            footer: _Amount('+${formatMoney(cell.amount)}', Colors.green.shade800),
+          ),
+        CellKind.treasure => _Card(
+            emblem: cell.emblem,
+            title: 'TREASURE',
+            titleColor: Colors.brown.shade800,
+            footer: _Amount('+${formatMoney(cell.amount)}', Colors.red.shade800),
+          ),
+        CellKind.crisis => _Card(
+            emblem: cell.emblem,
+            title: 'CRISIS',
+            titleColor: Colors.red.shade700,
+            footer: _Amount('-${(Game.crisisRate * 100).round()}%', Colors.red.shade700),
+          ),
+        CellKind.elevator => Row(
             children: [
-              const FittedBox(child: Text('Treasure')),
-              Text('\$', style: TextStyle(fontSize: 26, color: Colors.blue.shade800)),
-              FittedBox(
-                child: Text(formatMoney(cell.amount),
-                    style: TextStyle(color: Colors.red.shade700)),
+              const SizedBox.square(dimension: 64, child: _Medallion('elevator')),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const FittedBox(
+                      child: Text('ЭЛЕВАТОР', style: TextStyle(fontFamily: 'RussoOne', fontSize: 13)),
+                    ),
+                    _ElevatorRule('2–6', Icons.arrow_forward_rounded, Colors.blue.shade700),
+                    _ElevatorRule('7–12', Icons.arrow_downward_rounded, Colors.red.shade700),
+                  ],
+                ),
               ),
             ],
           ),
-        CellKind.pot => Center(
-            child: FittedBox(
-              child: Text(
-                '\$  ${formatMoney(cell.amount)} \$  ',
-                style: TextStyle(fontSize: 34, color: Colors.red.shade700),
+        CellKind.pot => Row(
+            children: [
+              const SizedBox.square(dimension: 60, child: _Medallion('pot')),
+              const SizedBox(width: 8),
+              Expanded(
+                child: FittedBox(
+                  child: Text(
+                    '\$ ${formatMoney(cell.amount)} \$',
+                    style: TextStyle(
+                      fontFamily: 'RussoOne',
+                      fontSize: 30,
+                      color: Colors.red.shade700,
+                    ),
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
       };
 }
 
-class _DiagonalPainter extends CustomPainter {
-  _DiagonalPainter(this.color);
+/// Emblem on top, title and footer below.
+class _Card extends StatelessWidget {
+  const _Card({
+    required this.emblem,
+    required this.title,
+    required this.titleColor,
+    required this.footer,
+  });
 
+  final String emblem;
+  final String title;
+  final Color titleColor;
+  final Widget footer;
+
+  @override
+  Widget build(BuildContext context) {
+    final light = titleColor.computeLuminance() > 0.5;
+    return Column(
+      children: [
+        Expanded(child: Center(child: _Medallion(emblem))),
+        const SizedBox(height: 3),
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            title,
+            maxLines: 1,
+            style: TextStyle(
+              fontFamily: 'RussoOne',
+              fontWeight: FontWeight.normal,
+              fontSize: 13,
+              color: titleColor,
+              shadows: light ? const [Shadow(blurRadius: 2, color: Colors.black54)] : null,
+            ),
+          ),
+        ),
+        const SizedBox(height: 2),
+        SizedBox(height: 16, child: footer),
+      ],
+    );
+  }
+}
+
+class _Medallion extends StatelessWidget {
+  const _Medallion(this.emblem);
+
+  final String emblem;
+
+  @override
+  Widget build(BuildContext context) {
+    return AspectRatio(
+      aspectRatio: 1,
+      child: Container(
+        padding: const EdgeInsets.all(5),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: const RadialGradient(
+            center: Alignment(-0.3, -0.4),
+            colors: [Colors.white, Color(0xFFE6EBEE)],
+          ),
+          border: Border.all(color: Colors.black.withValues(alpha: 0.15)),
+          boxShadow: const [BoxShadow(blurRadius: 3, offset: Offset(0, 1), color: Colors.black26)],
+        ),
+        child: SvgPicture.asset('assets/emblems/$emblem.svg'),
+      ),
+    );
+  }
+}
+
+class _NumberBadge extends StatelessWidget {
+  const _NumberBadge(this.number);
+
+  final int number;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: Colors.black26),
+      ),
+      child: Text(
+        '$number',
+        style: const TextStyle(color: _ink, fontSize: 11, fontWeight: FontWeight.bold),
+      ),
+    );
+  }
+}
+
+class _Amount extends StatelessWidget {
+  const _Amount(this.text, this.color);
+
+  final String text;
   final Color color;
 
   @override
-  void paint(Canvas canvas, Size size) {
-    canvas.drawLine(
-      Offset(size.width * 0.15, size.height * 0.9),
-      Offset(size.width * 0.85, size.height * 0.1),
-      Paint()
-        ..color = color
-        ..strokeWidth = 3,
+  Widget build(BuildContext context) {
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      child: Text(text, style: TextStyle(color: color, fontSize: 12)),
     );
   }
+}
+
+class _ElevatorRule extends StatelessWidget {
+  const _ElevatorRule(this.range, this.icon, this.color);
+
+  final String range;
+  final IconData icon;
+  final Color color;
 
   @override
-  bool shouldRepaint(_DiagonalPainter oldDelegate) => oldDelegate.color != color;
+  Widget build(BuildContext context) {
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      alignment: Alignment.centerLeft,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(range, style: TextStyle(color: color, fontSize: 14)),
+          const SizedBox(width: 2),
+          Icon(icon, size: 16, color: color),
+        ],
+      ),
+    );
+  }
 }
 
 void showCellInfo(BuildContext context, Game game, BoardCell cell) {
@@ -160,9 +280,7 @@ void showCellInfo(BuildContext context, Game game, BoardCell cell) {
       ],
     CellKind.bank || CellKind.treasure => ['Выдаёт ${formatMoney(cell.amount)}'],
     CellKind.start => ['За проход или попадание: +${formatMoney(cell.amount)}'],
-    CellKind.crisis => [
-        'Теряешь ${(Game.crisisRate * 100).round()}% наличных',
-      ],
+    CellKind.crisis => ['Теряешь ${(Game.crisisRate * 100).round()}% наличных'],
     CellKind.elevator => [
         'Стоишь на элеваторе и бросаешь:',
         '2–6: дальше по кругу,',
@@ -174,11 +292,15 @@ void showCellInfo(BuildContext context, Game game, BoardCell cell) {
   showDialog<void>(
     context: context,
     builder: (context) => AlertDialog(
-      title: Text(cell.isFirm ? '${cell.number}. ${cell.name}' : cell.name),
+      icon: SizedBox(width: 72, height: 72, child: _Medallion(cell.emblem)),
+      title: Text(
+        cell.isFirm ? '${cell.number}. ${cell.name}' : cell.name,
+        style: const TextStyle(fontFamily: 'RussoOne'),
+      ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [for (final line in lines) Text(line)],
+        children: [for (final line in lines) Text(line, style: const TextStyle(fontSize: 16))],
       ),
       actions: [
         TextButton(onPressed: () => Navigator.pop(context), child: const Text('OK')),

@@ -26,6 +26,9 @@ class BoardCell {
   final Color color;
 
   bool get isFirm => kind == CellKind.firm;
+
+  /// Asset name in assets/emblems/ (see tool/emblems.py).
+  String get emblem => isFirm ? name.toLowerCase().replaceAll(' ', '') : kind.name;
 }
 
 BoardCell _firm(int number, String name, int price, FirmGroup group, int color) =>

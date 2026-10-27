@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../model/game.dart';
 import '../model/money.dart';
@@ -127,27 +128,38 @@ class _PlayerCard extends StatelessWidget {
               runSpacing: 4,
               children: [
                 for (final firm in firms)
-                  Tooltip(
-                    message: '${firm.number}. ${firm.name}',
-                    child: Container(
-                      width: 28,
-                      height: 20,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: firm.color,
-                        borderRadius: BorderRadius.circular(4),
-                        border: Border.all(color: Colors.black26),
-                      ),
-                      child: Text(
-                        '${firm.number}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: firm.color.computeLuminance() > 0.45
-                              ? Colors.black87
-                              : Colors.white,
+                  Container(
+                    padding: const EdgeInsets.fromLTRB(2, 2, 6, 2),
+                    decoration: BoxDecoration(
+                      color: firm.color,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.black26),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 16,
+                          height: 16,
+                          padding: const EdgeInsets.all(1.5),
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                          ),
+                          child: SvgPicture.asset('assets/emblems/${firm.emblem}.svg'),
                         ),
-                      ),
+                        const SizedBox(width: 4),
+                        Text(
+                          firm.name,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: firm.color.computeLuminance() > 0.45
+                                ? Colors.black87
+                                : Colors.white,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
               ],

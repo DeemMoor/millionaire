@@ -12,7 +12,7 @@ class MillionaireApp extends StatelessWidget {
     return MaterialApp(
       title: 'Миллионер',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(colorSchemeSeed: Colors.teal),
+      theme: ThemeData(colorSchemeSeed: Colors.teal, fontFamily: 'PTSans'),
       home: const SetupScreen(),
     );
   }

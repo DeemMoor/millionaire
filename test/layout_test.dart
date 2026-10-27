@@ -27,6 +27,6 @@ void main() {
     final panel = tester.getRect(find.byType(PlayersPanel));
     final scale = board.height / boardSize.height;
     // The panel area ends where the bottom row of cells starts.
-    expect(panel.bottom, lessThanOrEqualTo(board.top + 6 * cellH * scale));
+    expect(panel.bottom, lessThanOrEqualTo(board.top + (boardSize.height - edgeH) * scale));
   });
 }

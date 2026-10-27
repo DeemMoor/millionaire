@@ -36,38 +36,51 @@ class _GameScreenState extends State<GameScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0B5C5C),
-      body: SafeArea(
-        child: ListenableBuilder(
-          listenable: _game,
-          builder: (context, _) => LayoutBuilder(
-            builder: (context, constraints) {
-              final controls = ControlPanel(game: _game, onNewGame: _newGame);
-              final players = PlayersPanel(game: _game);
-              final landscape = constraints.maxWidth / constraints.maxHeight >= 1.3;
-              if (landscape) {
-                return Center(
-                  child: FittedBox(
-                    child: BoardView(
-                      game: _game,
-                      left: _ShrinkToFit(child: players),
-                      right: _ShrinkToFit(child: controls),
+      body: DecoratedBox(
+        decoration: const BoxDecoration(
+          gradient: RadialGradient(
+            radius: 1.2,
+            colors: [Color(0xFF13807A), Color(0xFF0B5C5C), Color(0xFF063A3A)],
+            stops: [0, 0.6, 1],
+          ),
+        ),
+        child: SafeArea(
+          child: ListenableBuilder(
+            listenable: _game,
+            builder: (context, _) => LayoutBuilder(
+              builder: (context, constraints) {
+                final controls = ControlPanel(game: _game, onNewGame: _newGame);
+                final players = PlayersPanel(game: _game);
+                final landscape =
+                    constraints.maxWidth / constraints.maxHeight >= 1.3;
+                if (landscape) {
+                  return Center(
+                    child: FittedBox(
+                      child: BoardView(
+                        game: _game,
+                        left: _ShrinkToFit(child: players),
+                        right: _ShrinkToFit(child: controls),
+                      ),
                     ),
-                  ),
+                  );
+                }
+                return Column(
+                  children: [
+                    FittedBox(child: BoardView(game: _game)),
+                    Expanded(
+                      child: ListView(
+                        padding: const EdgeInsets.all(16),
+                        children: [
+                          controls,
+                          const SizedBox(height: 12),
+                          players,
+                        ],
+                      ),
+                    ),
+                  ],
                 );
-              }
-              return Column(
-                children: [
-                  FittedBox(child: BoardView(game: _game)),
-                  Expanded(
-                    child: ListView(
-                      padding: const EdgeInsets.all(16),
-                      children: [controls, const SizedBox(height: 12), players],
-                    ),
-                  ),
-                ],
-              );
-            },
+              },
+            ),
           ),
         ),
       ),
