@@ -45,7 +45,8 @@ const elevatorIndex = 6;
 
 /// The outer ring, clockwise from Start (top-left corner).
 final ringCells = <BoardCell>[
-  const BoardCell(kind: CellKind.start, name: 'Start'),
+  // Paid for passing or landing on Start.
+  const BoardCell(kind: CellKind.start, name: 'Start', amount: 20000),
   _firm(1, 'Puma', 10000, FirmGroup.sport, 0xFFEF5350),
   _firm(2, 'Montana', 10000, FirmGroup.sport, 0xFFFF9800),
   _firm(3, 'Adidas', 10000, FirmGroup.sport, 0xFFFFF59D),

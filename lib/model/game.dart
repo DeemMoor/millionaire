@@ -42,6 +42,9 @@ class Game extends ChangeNotifier {
   /// Rent multiplier when the owner holds every firm of the group.
   static const groupRentMultiplier = 2;
 
+  /// Share of cash lost on the CRISIS cell.
+  static const crisisRate = 0.2;
+
   final int startBalance;
   final Random _random;
   final List<Player> players;
@@ -100,7 +103,13 @@ class Game extends ChangeNotifier {
         return _endTurn();
       }
     } else {
+      final passedStart = player.ringPos + steps >= ringCells.length;
       player.ringPos = (player.ringPos + steps) % ringCells.length;
+      if (passedStart) {
+        final bonus = ringCells[0].amount;
+        player.balance += bonus;
+        log.add('${player.name}: круг пройден, +${formatMoney(bonus)}');
+      }
     }
     _resolve(player);
   }
@@ -149,16 +158,19 @@ class Game extends ChangeNotifier {
         } else if (owner != player) {
           _payRent(player, owner, cell);
         }
-      case CellKind.bank || CellKind.pot:
+      case CellKind.bank || CellKind.pot || CellKind.treasure:
         player.balance += cell.amount;
-        log.add('${player.name}: +${formatMoney(cell.amount)}');
+        log.add('${player.name}: +${formatMoney(cell.amount)} (${cell.name})');
+      case CellKind.crisis:
+        final loss = (player.balance * crisisRate).round();
+        player.balance -= loss;
+        log.add('${player.name}: кризис, −${formatMoney(loss)}');
       case CellKind.elevator:
         phase = Phase.elevator;
         notifyListeners();
         return;
-      case CellKind.start || CellKind.crisis || CellKind.treasure:
-        // TODO: rules for these cells are not decided yet.
-        break;
+      case CellKind.start:
+        break; // the bonus is paid while moving
     }
     _endTurn();
   }

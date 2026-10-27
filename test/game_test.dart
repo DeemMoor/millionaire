@@ -116,6 +116,38 @@ void main() {
     expect(game.phase, Phase.roll);
   });
 
+  test('treasure pays 300 000', () {
+    final game = Game(random: _FixedDice([1, 2]));
+    game.players[0].ringPos = 35;
+    game.roll();
+    expect(game.players[0].cell.kind, CellKind.treasure);
+    expect(game.players[0].balance, 350000);
+  });
+
+  test('passing Start pays a bonus', () {
+    final game = Game(random: _FixedDice([2, 3]));
+    game.players[0].ringPos = 35;
+    game.roll();
+    expect(game.players[0].cell.name, 'Puma');
+    expect(game.players[0].balance, 70000);
+  });
+
+  test('landing on Start pays the bonus too', () {
+    final game = Game(random: _FixedDice([1, 3]));
+    game.players[0].ringPos = 35;
+    game.roll();
+    expect(game.players[0].ringPos, 0);
+    expect(game.players[0].balance, 70000);
+  });
+
+  test('crisis takes 20% of cash', () {
+    final game = Game(random: _FixedDice([1, 2]));
+    game.players[0].ringPos = 17;
+    game.roll();
+    expect(game.players[0].cell.kind, CellKind.crisis);
+    expect(game.players[0].balance, 40000);
+  });
+
   test('bankrupt player drops out and loses firms', () {
     final game = Game(random: _FixedDice([3, 4, 1, 2]));
     game.owners[3] = 0;

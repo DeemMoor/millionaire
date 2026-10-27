@@ -2,7 +2,7 @@
 // so skwasm can run multi-threaded.
 // Usage: node tool/serve.mjs [port]
 import { createServer } from 'node:http';
-import { readFile } from 'node:fs/promises';
+import { readFile, stat } from 'node:fs/promises';
 import { extname, join, normalize } from 'node:path';
 import { gzipSync } from 'node:zlib';
 
@@ -25,9 +25,9 @@ createServer(async (req, res) => {
   if (path.endsWith('/')) path += 'index.html';
   const file = join(root, path);
   if (!file.startsWith(root)) return res.writeHead(403).end();
-  let body;
+  let body, mtime;
   try {
-    body = await readFile(file);
+    [body, { mtimeMs: mtime }] = await Promise.all([readFile(file), stat(file)]);
   } catch {
     return res.writeHead(404).end();
   }
@@ -38,7 +38,7 @@ createServer(async (req, res) => {
     'Cache-Control': 'no-cache',
   };
   if (/\bgzip\b/.test(req.headers['accept-encoding'] ?? '') && body.length > 1024) {
-    const key = `${file}:${body.length}`;
+    const key = `${file}:${mtime}`;
     if (!gzipCache.has(key)) gzipCache.set(key, gzipSync(body));
     body = gzipCache.get(key);
     headers['Content-Encoding'] = 'gzip';

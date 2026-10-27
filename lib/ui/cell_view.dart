@@ -73,12 +73,19 @@ class CellView extends StatelessWidget {
               FittedBox(child: Text(formatMoney(cell.amount))),
             ],
           ),
-        CellKind.start => Center(
-            child: Transform.rotate(
-              angle: -0.5,
-              child: Text('Start',
-                  style: TextStyle(fontSize: 22, color: Colors.blue.shade800)),
-            ),
+        CellKind.start => Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Transform.rotate(
+                angle: -0.4,
+                child: Text('Start',
+                    style: TextStyle(fontSize: 22, color: Colors.blue.shade800)),
+              ),
+              FittedBox(
+                child: Text('+${formatMoney(cell.amount)}',
+                    style: TextStyle(color: Colors.green.shade800)),
+              ),
+            ],
           ),
         CellKind.elevator => CustomPaint(
             painter: _DiagonalPainter(Colors.blue.shade900),
@@ -151,14 +158,17 @@ void showCellInfo(BuildContext context, Game game, BoardCell cell) {
         'Рента: ${formatMoney(game.rentFor(cell))}',
         'Владелец: ${owner?.name ?? 'свободна'}',
       ],
-    CellKind.bank => ['Выдаёт ${formatMoney(cell.amount)}'],
+    CellKind.bank || CellKind.treasure => ['Выдаёт ${formatMoney(cell.amount)}'],
+    CellKind.start => ['За проход или попадание: +${formatMoney(cell.amount)}'],
+    CellKind.crisis => [
+        'Теряешь ${(Game.crisisRate * 100).round()}% наличных',
+      ],
     CellKind.elevator => [
         'Выпало 1–3: едешь дальше по кругу.',
         'Выпало 4–6: падаешь в шахту.',
         'Из шахты выход только точным попаданием на элеватор.',
       ],
     CellKind.pot => ['Приз ${formatMoney(cell.amount)} за попадание из шахты'],
-    _ => ['Правила этого поля ещё не придуманы'],
   };
   showDialog<void>(
     context: context,
