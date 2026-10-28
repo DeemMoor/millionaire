@@ -4,10 +4,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import '../model/board.dart';
 import '../model/game.dart';
 import '../model/money.dart';
+import '../update/release.dart';
+import '../update/update.dart' as update;
+import '../update/updater.dart';
 
 const _newGameKey = SingleActivator(LogicalKeyboardKey.f2);
 const _exitKey = SingleActivator(LogicalKeyboardKey.keyX, alt: true);
@@ -90,10 +94,34 @@ class AppMenu extends StatelessWidget {
                             leadingIcon: const Icon(Icons.help_outline),
                             child: const Text('Помощь'),
                           ),
+                          if (update.updatesSupported)
+                            MenuItemButton(
+                              onPressed: () => _checkForUpdate(context),
+                              leadingIcon: const Icon(Icons.system_update_alt),
+                              child: const Text('Проверить обновления'),
+                            ),
                         ],
                       ),
                     ],
                   ),
+                ),
+                ValueListenableBuilder(
+                  valueListenable: availableUpdate,
+                  builder: (context, release, _) => release == null
+                      ? const SizedBox.shrink()
+                      : Container(
+                          color: const Color(0xCC042E2E),
+                          height: 40,
+                          padding: const EdgeInsets.only(right: 8),
+                          child: TextButton.icon(
+                            onPressed: () => _showUpdate(context, release),
+                            style: TextButton.styleFrom(
+                              foregroundColor: const Color(0xFFFFEB3B),
+                            ),
+                            icon: const Icon(Icons.system_update_alt),
+                            label: Text('Обновление ${release.version}'),
+                          ),
+                        ),
                 ),
               ],
             ),
@@ -121,11 +149,13 @@ class _Submenu extends StatelessWidget {
   }
 }
 
-void _showAbout(BuildContext context) {
+Future<void> _showAbout(BuildContext context) async {
+  final version = (await PackageInfo.fromPlatform()).version;
+  if (!context.mounted) return;
   showAboutDialog(
     context: context,
     applicationName: 'Миллионер',
-    applicationVersion: 'версия 2.0',
+    applicationVersion: 'версия $version',
     applicationIcon: SizedBox.square(
       dimension: 56,
       child: SvgPicture.asset('assets/emblems/pot.svg'),
@@ -222,3 +252,107 @@ void _showHelp(BuildContext context) {
     ),
   );
 }
+
+Future<void> _checkForUpdate(BuildContext context) async {
+  Release? release;
+  Object? error;
+  try {
+    release = await checkForUpdateNow();
+  } catch (e) {
+    error = e;
+  }
+  if (!context.mounted) return;
+  if (release != null) return _showUpdate(context, release);
+  final version = (await PackageInfo.fromPlatform()).version;
+  if (!context.mounted) return;
+  await _message(
+    context,
+    error == null ? 'Обновлений нет' : 'Не удалось проверить',
+    error == null ? 'У вас последняя версия $version.' : '$error',
+  );
+}
+
+Future<void> _showUpdate(BuildContext context, Release release) async {
+  final notes = release.notes
+      .split('\n')
+      .map((l) => l.startsWith('- ') ? '•  ${l.substring(2)}' : l)
+      .join('\n')
+      .trim();
+  final go = await showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text(
+        'Что нового в ${release.version}',
+        style: const TextStyle(fontFamily: 'RussoOne'),
+      ),
+      content: SizedBox(
+        width: 480,
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(notes, style: const TextStyle(fontSize: 15)),
+              if (release.selfInstalls) ...[
+                const SizedBox(height: 16),
+                const Text(
+                  'Игра закроется и запустится уже обновлённой. '
+                  'Текущая партия не сохранится.',
+                  style: TextStyle(fontStyle: FontStyle.italic),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context, false),
+          child: const Text('Позже'),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.pop(context, true),
+          child: Text(release.selfInstalls ? 'Обновить' : 'Открыть страницу'),
+        ),
+      ],
+    ),
+  );
+  if (go != true || !context.mounted) return;
+  if (!release.selfInstalls) return update.install(release);
+
+  final navigator = Navigator.of(context);
+  showDialog<void>(
+    context: context,
+    barrierDismissible: false,
+    builder: (_) => const AlertDialog(
+      content: Row(
+        children: [
+          CircularProgressIndicator(),
+          SizedBox(width: 20),
+          Text('Скачиваю обновление...'),
+        ],
+      ),
+    ),
+  );
+  try {
+    await update.install(release); // quits the app on success
+  } catch (e) {
+    navigator.pop();
+    if (context.mounted) await _message(context, 'Обновление не удалось', '$e');
+  }
+}
+
+Future<void> _message(BuildContext context, String title, String text) =>
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: Text(text),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );

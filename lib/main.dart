@@ -2,8 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'ui/setup_screen.dart';
+import 'update/updater.dart';
 
-void main() => runApp(const MillionaireApp());
+void main() {
+  runApp(const MillionaireApp());
+  autoCheckForUpdate();
+}
 
 class MillionaireApp extends StatelessWidget {
   const MillionaireApp({super.key});

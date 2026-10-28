@@ -204,7 +204,10 @@ class _Footer extends StatelessWidget {
       children: [
         _NumberBadge(cell.number!),
         const Spacer(),
-        Text(formatMoney(cell.amount), style: const TextStyle(color: Colors.white)),
+        Text(
+          formatMoney(cell.amount),
+          style: const TextStyle(color: Colors.white),
+        ),
       ],
     );
   }
@@ -298,7 +301,10 @@ class _TurboWrapper extends StatelessWidget {
                 Positioned(
                   right: -6,
                   top: -14,
-                  child: Transform.rotate(angle: 0.25, child: const _CheckeredFlag()),
+                  child: Transform.rotate(
+                    angle: 0.25,
+                    child: const _CheckeredFlag(),
+                  ),
                 ),
               ],
             ),
@@ -314,7 +320,11 @@ class _TurboWrapper extends StatelessWidget {
             quarterTurns: 3,
             child: Text(
               'STICKER',
-              style: TextStyle(color: Colors.black, fontSize: 9, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 9,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ),
@@ -329,7 +339,9 @@ class _CheckeredFlag extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(border: Border.all(color: Colors.black, width: 0.8)),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.black, width: 0.8),
+      ),
       child: Column(
         children: [
           for (var r = 0; r < 3; r++)

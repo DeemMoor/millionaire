@@ -6,7 +6,9 @@ import 'package:millionaire/ui/game_screen.dart';
 import 'package:millionaire/ui/players_panel.dart';
 
 void main() {
-  testWidgets('players panel fits the board with every firm owned', (tester) async {
+  testWidgets('players panel fits the board with every firm owned', (
+    tester,
+  ) async {
     tester.view.physicalSize = const Size(1280, 720);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
@@ -27,6 +29,9 @@ void main() {
     final panel = tester.getRect(find.byType(PlayersPanel));
     final scale = board.height / boardSize.height;
     // The panel area ends where the bottom row of cells starts.
-    expect(panel.bottom, lessThanOrEqualTo(board.top + (boardSize.height - edgeH) * scale));
+    expect(
+      panel.bottom,
+      lessThanOrEqualTo(board.top + (boardSize.height - edgeH) * scale),
+    );
   });
 }

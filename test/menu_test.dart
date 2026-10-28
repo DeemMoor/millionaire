@@ -25,11 +25,16 @@ void main() {
     expect(find.text('Понятно'), findsOneWidget);
   });
 
-  testWidgets('F2 asks before dropping the game, then opens setup', (tester) async {
+  testWidgets('F2 asks before dropping the game, then opens setup', (
+    tester,
+  ) async {
     await pumpGame(tester);
     await tester.sendKeyEvent(LogicalKeyboardKey.f2);
     await tester.pumpAndSettle();
-    expect(find.text('Текущая партия будет потеряна. Начать заново?'), findsOneWidget);
+    expect(
+      find.text('Текущая партия будет потеряна. Начать заново?'),
+      findsOneWidget,
+    );
     await tester.tap(find.text('Начать'));
     await tester.pumpAndSettle();
     expect(find.byType(SetupScreen), findsOneWidget);
