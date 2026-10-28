@@ -52,7 +52,7 @@ jobs:
       - run: flutter pub get
       # The site lives under /millionaire/, not at the domain root.
       - run: flutter build web --release --wasm --no-web-resources-cdn --base-href /millionaire/
-      - uses: actions/upload-pages-artifact@v4
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: build/web
       - id: deploy
